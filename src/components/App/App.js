@@ -9,7 +9,7 @@ export default class App extends Component {
   render() {
     return (
       <div className={StyleSheet.container}>
-        <h1>App</h1>
+        <h1>React Relay Redux Universal Starter Kit</h1>
         {this.props.children}
       </div>
     );
