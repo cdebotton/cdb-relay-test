@@ -28,6 +28,10 @@ export default {
   module: {
     loaders: [
       {
+        test: /\.styl$/,
+        loader: 'css/locals!stylus',
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel',
@@ -38,6 +42,12 @@ export default {
     stage: 0,
     loose: ['all'],
     optional: ['runtime'],
+  },
+  stylus: {
+    use: [
+      require('nib')(),
+      require('rupture')(),
+    ],
   },
   plugins: [
     new webpack.optimize.DedupePlugin(),

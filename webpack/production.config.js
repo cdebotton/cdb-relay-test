@@ -1,21 +1,16 @@
 import path from 'path';
 import webpack from 'webpack';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import {
   ReportStatsPlugin,
   WriteStatsPlugin,
 } from './helpers/plugins';
 
-const WEBPACK_PORT = process.env.WEBPACK_PORT || '3333';
-const PUBLIC_PATH = `http://localhost:${WEBPACK_PORT}/`;
+const PUBLIC_PATH = `/build/`;
 
 export default {
-  devtool: "#eval",
   entry: {
-    bundle: [
-      `webpack-dev-server/client?${PUBLIC_PATH}`,
-      'webpack/hot/only-dev-server',
-      path.join(__dirname, '..', 'src', 'client.js'),
-    ],
+    bundle: path.join(__dirname, '..', 'src', 'client.js'),
   },
   output: {
     path: path.join(__dirname, '..', 'public','build'),
@@ -27,12 +22,12 @@ export default {
     loaders: [
       {
         test: /\.styl$/,
-        loader: 'style!css!stylus',
+        loader: ExtractTextPlugin.extract('style', 'css!stylus'),
       },
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loaders: ['react-hot', 'babel'],
+        loader: 'babel',
       }
     ],
   },
@@ -52,11 +47,19 @@ export default {
     ],
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      comments: false,
+      compress: {
+        warnings: false,
+        screw_ie8: true,
+      },
+    }),
+    new ExtractTextPlugin('/stylesheets/[hash].css'),
     new webpack.DefinePlugin({
       'process.env': JSON.stringify({
-        NODE_ENV: 'development',
+        NODE_ENV: 'production',
         BROWSER: true,
       }),
     }),
