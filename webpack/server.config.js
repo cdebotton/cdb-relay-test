@@ -47,8 +47,15 @@ export default {
   },
   babel: {
     stage: 0,
-    loose: ['all'],
-    optional: ['runtime'],
+    loose: [
+      'all',
+    ],
+    optional: [
+      'runtime',
+    ],
+    plugins: [
+      path.join(__dirname, 'helpers', 'babel-relay-plugin'),
+    ],
   },
   stylus: {
     use: [

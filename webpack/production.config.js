@@ -62,6 +62,9 @@ export default {
     optional: [
       'runtime'
     ],
+    plugins: [
+      path.join(__dirname, 'helpers', 'babel-relay-plugin'),
+    ],
   },
   stylus: {
     use: [

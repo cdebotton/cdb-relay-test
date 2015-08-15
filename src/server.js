@@ -4,7 +4,6 @@ import mount from 'koa-mount';
 import proxy from 'koa-proxy';
 import statics from 'koa-static';
 import compress from 'koa-compress';
-import bodyparser from 'koa-bodyparser';
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import React from 'react';
@@ -34,7 +33,6 @@ graphQLServer.listen(GRAPHQL_PORT, () => {
 });
 
 app.use(compress());
-app.use(bodyparser());
 
 app.use(statics(path.join(__dirname, '..', 'public')));
 
