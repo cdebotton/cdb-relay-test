@@ -28,8 +28,15 @@ export default {
   module: {
     loaders: [
       {
+        test: /\.css$/,
+        loaders: 'css/locals',
+      },
+      {
         test: /\.styl$/,
-        loader: 'css/locals!stylus',
+        loaders: [
+          'css/locals',
+          'stylus'
+        ],
       },
       {
         test: /\.js$/,

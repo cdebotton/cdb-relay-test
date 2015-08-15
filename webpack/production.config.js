@@ -21,6 +21,29 @@ export default {
   module: {
     loaders: [
       {
+        test: /\.json$/,
+        exclude: /node_modules/,
+        loader: 'json',
+      },
+      {
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'url?name=fonts/[name].[ext]&limit=10000&minetype=application/font-woff',
+      },
+      {
+        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        include: /font/,
+        loader: 'file?name=fonts/[name].[ext]',
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg)$/,
+        exclude: /node_modules/,
+        loader: 'file?name=assets/[name].[ext]',
+      },
+      {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract('style', 'css'),
+      },
+      {
         test: /\.styl$/,
         loader: ExtractTextPlugin.extract('style', 'css!stylus'),
       },

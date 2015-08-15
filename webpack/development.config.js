@@ -9,7 +9,7 @@ const WEBPACK_PORT = process.env.WEBPACK_PORT || '3333';
 const PUBLIC_PATH = `http://localhost:${WEBPACK_PORT}/`;
 
 export default {
-  devtool: "#eval",
+  devtool: '#eval',
   entry: {
     bundle: [
       `webpack-dev-server/client?${PUBLIC_PATH}`,
@@ -26,8 +26,38 @@ export default {
   module: {
     loaders: [
       {
+        test: /\.json$/,
+        exclude: /node_modules/,
+        loader: 'json',
+      },
+      {
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'url?name=fonts/[name].[ext]&limit=10000&minetype=application/font-woff',
+      },
+      {
+        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        include: /font/,
+        loader: 'file?name=fonts/[name].[ext]',
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg)$/,
+        exclude: /node_modules/,
+        loader: 'file?name=assets/[name].[ext]',
+      },
+      {
+        test: /\.css$/,
+        loaders: [
+          'style',
+          'css'
+        ],
+      },
+      {
         test: /\.styl$/,
-        loader: 'style!css!stylus',
+        loaders: [
+          'style',
+          'css',
+          'stylus'
+        ],
       },
       {
         test: /\.js$/,

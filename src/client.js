@@ -12,6 +12,8 @@ try {
   history = new HashHistory();
 }
 
+require('font-awesome/css/font-awesome.css');
+
 ReactDOM.render((
   <Application>
     <Client history={history} />
