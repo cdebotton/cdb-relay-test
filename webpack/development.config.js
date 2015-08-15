@@ -28,7 +28,7 @@ export default {
     loaders: [
       {
         test: /\.js$/,
-        exclude: /\node_modules/,
+        exclude: /node_modules/,
         loaders: ['react-hot', 'babel'],
       }
     ],

@@ -1,8 +1,11 @@
 #!/usr/bin/env node_modules/.bin/babel-node --stage=0
 
 import blessed from 'blessed';
+import open from 'open';
 import {StringDecoder} from 'string_decoder';
-import {spawn} from 'pty';
+import {spawn} from 'pty.js';
+
+const APP_PORT = process.env.PORT || 3000;
 
 const decoder = new StringDecoder('utf-8');
 const screen = blessed.screen({
@@ -16,6 +19,7 @@ const commands = {
   'Webpack Development Server': 'npm run webpack:watch -s',
   'ESLint': 'npm run lint:watch -s',
   'Relay Schema': 'npm run schema:watch -s',
+  'Webpack Node': 'npm run webpack-node:watch -s',
 };
 
 let actives = [];
@@ -166,7 +170,29 @@ const terminals = Object.keys(commands).map((name) => {
   return box;
 });
 
-screen.key(['esc', 'C-c', 'q'], () => {
+const openButton = blessed.button({
+  parent: screen,
+  content: 'Open in browser',
+  left: '100%-18',
+  height: 1,
+  right: 1,
+  padding: {
+    left: 1,
+    right: 1,
+  },
+  style: {
+    bg: 'red',
+    fg: 'white',
+    hover: {
+      bg: 'red',
+      fg: 'black',
+    }
+  },
+});
+
+openButton.on('click', () => open(`http://localhost:${APP_PORT}`));
+
+screen.key(['C-c', 'esc', 'q'], () => {
   screen.destroy();
   process.exit();
 });

@@ -3,8 +3,14 @@ import mount from 'koa-mount';
 import proxy from 'koa-proxy';
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
+import React from 'react';
+import ReactDOM from 'react-dom/server';
+import {Router} from 'react-router';
+import Location from 'react-router/lib/Location';
 import {green} from 'colors';
 import {Schema} from '../data/schema';
+import Layout from './views/Layout';
+import Application from './containers/Application';
 
 const ENV = process.env.NODE_ENV || 'development';
 const APP_PORT = process.env.PORT || 3000;
@@ -32,6 +38,36 @@ if (ENV === 'development') {
     host: `http://localhost:${WEBPACK_PORT}`,
   })));
 }
+
+app.use(function* render() {
+  const stats = require('../build/webpack-stats.json');
+  const routes = require('../build/routes-compiled');
+
+  const routerProps = yield new Promise((resolve, reject) => {
+    const location = new Location(this.req.url);
+    Router.run(routes, location, (err, initialState) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(initialState);
+    });
+  });
+
+  const markup = ReactDOM.renderToString(
+    <Application>
+      <Router {...routerProps} />
+    </Application>
+  );
+
+  const html = ReactDOM.renderToStaticMarkup(
+    <Layout
+      markup={markup}
+      {...stats} />
+  );
+
+  this.body = `<!doctype>\n${html}`;
+});
 
 app.listen(APP_PORT, () => {
   console.log(green(`App is running at http://localhost:${APP_PORT}`));
