@@ -1,6 +1,6 @@
 node_modules
-build
-public
+build/*
+public/*
 
 ._*
 .DS_Store
