@@ -6,16 +6,18 @@ import * as SampleActions from '../../actions/SampleActions';
 
 class Home extends Component {
   static propTypes = {
-    sample: PropTypes.number.isRequired,
+    count: PropTypes.number.isRequired,
+    isIncreasing: PropTypes.bool.isRequired,
     increase: PropTypes.func.isRequired,
     decrease: PropTypes.func.isRequired,
+    increaseAsync: PropTypes.func.isRequired,
   }
 
   render() {
     return (
       <div className={StyleSheet.container}>
         <h2><i className="fa fa-home" /> Home</h2>
-        <p><strong>Sample:</strong> {this.props.sample}</p>
+        <p><strong>Sample:</strong> {this.props.count}</p>
         <button
           className={StyleSheet.incrementor}
           onClick={() => this.props.increase()}
@@ -26,13 +28,20 @@ class Home extends Component {
           onClick={() => this.props.decrease()}
           type="button"
           children="-" />
+        <button
+          className={StyleSheet.decrementor}
+          onClick={() => this.props.increaseAsync()}
+          disabled={this.props.isIncreasing}
+          type="button"
+          children="+ Async" />
       </div>
     );
   }
 }
 
 @connect((state) => ({
-  sample: state.sample,
+  count: state.sample.count,
+  isIncreasing: state.sample.isIncreasing,
 }))
 export default class HomeConnector extends Component {
   static propTypes = {

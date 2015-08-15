@@ -11,6 +11,11 @@ import * as reducers from './reducers';
 
 const ENV = process.env.NODE_ENV || 'development';
 const reducer = combineReducers(reducers);
+let initialState;
+
+if (process.env.BROWSER) {
+  initialState = JSON.parse(document.getElementById('__payload__').innerHTML);
+}
 
 let createStore;
 if (ENV === 'development') {
@@ -19,4 +24,4 @@ if (ENV === 'development') {
   createStore = applyMiddleware(thunk)(reduxCreateStore);
 }
 
-export default createStore(reducer);
+export default createStore(reducer, initialState);

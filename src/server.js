@@ -70,6 +70,7 @@ app.use(function* render() {
   const html = ReactDOM.renderToStaticMarkup(
     <Layout
       markup={markup}
+      payload={Application.getState()}
       {...stats} />
   );
 

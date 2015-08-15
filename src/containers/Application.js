@@ -22,6 +22,10 @@ export default class Application extends Component {
     });
   }
 
+  static getState() {
+    return store.getState();
+  }
+
   renderDebugPanel() {
     if (DEV && this.state.mounted) {
       return (

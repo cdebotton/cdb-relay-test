@@ -5,6 +5,7 @@ export default class Layout extends Component {
     js: PropTypes.array,
     css: PropTypes.array,
     markup: PropTypes.string.isRequired,
+    payload: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
@@ -29,9 +30,21 @@ export default class Layout extends Component {
     ));
   }
 
+  renderPayload() {
+    const payload = JSON.stringify(this.props.payload);
+
+    return (
+      <script
+        id="__payload__"
+        type="application/json"
+        dangerouslySetInnerHTML={{__html: payload}} />
+    );
+  }
+
   render() {
     const styles = this.renderStyles();
     const scripts = this.renderScripts();
+    const payload = this.renderPayload();
 
     return (
       <html lang="en">
@@ -43,6 +56,7 @@ export default class Layout extends Component {
         <div
           id="mount"
           dangerouslySetInnerHTML={{__html: this.props.markup}} />
+        {payload}
         {scripts}
       </body>
       </html>
