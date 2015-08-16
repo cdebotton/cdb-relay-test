@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from 'react';
 import StyleSheet from './App.styl';
+import title from '../../decorators/title';
 
+@title('Christian de Botton')
 export default class App extends Component {
   static propTypes = {
     children: PropTypes.any.isRequired,

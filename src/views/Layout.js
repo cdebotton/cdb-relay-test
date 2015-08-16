@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import store from '../store';
 
 export default class Layout extends Component {
   static propTypes = {
@@ -45,11 +46,12 @@ export default class Layout extends Component {
     const styles = this.renderStyles();
     const scripts = this.renderScripts();
     const payload = this.renderPayload();
+    const {title} = store.getState().ui;
 
     return (
       <html lang="en">
       <head>
-        <title>React/Relay/Redux Universal Starter Kit</title>
+        <title>{title}</title>
         {styles}
       </head>
       <body>
