@@ -4,6 +4,7 @@ import mount from 'koa-mount';
 import proxy from 'koa-proxy';
 import statics from 'koa-static';
 import compress from 'koa-compress';
+import favicon from 'koa-favicon';
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import React from 'react';
@@ -34,6 +35,7 @@ graphQLServer.listen(GRAPHQL_PORT, () => {
 
 app.use(compress());
 
+app.use(favicon(path.join(__dirname, 'assets', 'faivcon.ico')));
 app.use(statics(path.join(__dirname, '..', 'public')));
 
 app.use(mount('/graphql', proxy({

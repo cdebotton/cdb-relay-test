@@ -3,7 +3,9 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import StyleSheet from './Home.styl';
 import * as SampleActions from '../../actions/SampleActions';
+import title from '../../decorators/title';
 
+@title('Home | Christian de Botton')
 class Home extends Component {
   static propTypes = {
     count: PropTypes.number.isRequired,
