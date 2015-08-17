@@ -3,6 +3,13 @@ import {connect} from 'react-redux';
 import * as UIActions from '../actions/UIActions';
 
 export default function title(documentTitle) {
+  const getTitleString = (props) => {
+    if (typeof documentTitle === 'function') {
+      return documentTitle(props);
+    }
+    return documentTitle;
+  };
+
   return (TargetClass) => {
     @connect(({ui}) => ({
       title: ui.title,
@@ -13,11 +20,13 @@ export default function title(documentTitle) {
       }
 
       componentWillMount() {
-        this.props.dispatch(UIActions.setTitle(documentTitle));
-      }
+        const titleString = getTitleString(this.props);
 
-      componentDidMount() {
-        document.title = documentTitle;
+        this.props.dispatch(UIActions.setTitle(titleString));
+
+        if (typeof document !== 'undefined') {
+          document.title = titleString;
+        }
       }
 
       render() {

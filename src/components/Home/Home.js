@@ -5,7 +5,7 @@ import StyleSheet from './Home.styl';
 import * as SampleActions from '../../actions/SampleActions';
 import title from '../../decorators/title';
 
-@title('Home | Christian de Botton')
+@title(() => `Home | Christian de Botton`)
 class Home extends Component {
   static propTypes = {
     count: PropTypes.number.isRequired,
@@ -45,6 +45,7 @@ class Home extends Component {
   count: state.sample.count,
   isIncreasing: state.sample.isIncreasing,
 }))
+
 export default class HomeConnector extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
@@ -61,3 +62,15 @@ export default class HomeConnector extends Component {
     );
   }
 }
+
+// class HomeContainer extends Relay.createContainer(HomeConnector, {
+//   fragments: {
+//     viewer: () => Relay.QL`
+//       fragment on Viewer {
+//         users {
+//           firstName,
+//         },
+//       }
+//     `,
+//   },
+// });

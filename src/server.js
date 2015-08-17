@@ -9,8 +9,8 @@ import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import {Router} from 'react-router';
-import Location from 'react-router/lib/Location';
+// import {Router} from 'react-router';
+// import Location from 'react-router/lib/Location';
 import {green} from 'colors';
 import {Schema} from '../data/schema';
 import Layout from './views/Layout';
@@ -50,28 +50,27 @@ if (ENV === 'development') {
 
 app.use(function* render() {
   const stats = require('../build/webpack-stats.json');
-  const routes = require('../build/routes-compiled');
+  // const routes = require('../build/routes-compiled');
 
-  const routerProps = yield new Promise((resolve, reject) => {
-    const location = new Location(this.req.url);
-    Router.run(routes, location, (err, initialState) => {
-      if (err) {
-        return reject(err);
-      }
+  // const routerProps = yield new Promise((resolve, reject) => {
+  //   const location = new Location(this.req.url);
+  //   Router.run(routes, location, (err, initialState) => {
+  //     if (err) {
+  //       return reject(err);
+  //     }
 
-      resolve(initialState);
-    });
-  });
+  //     resolve(initialState);
+  //   });
+  // });
 
-  const markup = ReactDOM.renderToString(
-    <Application>
-      <Router {...routerProps} />
-    </Application>
-  );
+  // const markup = ReactDOM.renderToString(
+  //   <Application>
+  //     <Router {...routerProps} />
+  //   </Application>
+  // );
 
   const html = ReactDOM.renderToStaticMarkup(
     <Layout
-      markup={markup}
       payload={Application.getState()}
       {...stats} />
   );
