@@ -57,6 +57,8 @@ class HomeConnector extends Component {
     const {dispatch, ...props} = this.props;
     const sampleActions = bindActionCreators(SampleActions, dispatch);
 
+    console.log(this.props.test);
+
     return (
       <Home
         {...sampleActions}

@@ -3,6 +3,7 @@ import {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLString,
+  GraphQLList,
 } from 'graphql';
 
 import {
@@ -19,12 +20,23 @@ import {
   getUsers,
 } from './mock-database';
 
+class Test extends Object {}
+const getTest = () => {
+  const test = new Test();
+  test.id = 1;
+  test.value = 'Hello, world!';
+
+  return test;
+}
+
 const {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
     const {id, type} = fromGlobalId(globalId);
     switch (type) {
     case 'User':
       return getUser(id);
+    case 'Test':
+      return getTest(id);
     default:
       return null;
     }
@@ -33,10 +45,27 @@ const {nodeInterface, nodeField} = nodeDefinitions(
     if (obj instanceof User) {
       return userType; // eslint-disable-line no-use-before-define
     }
+    if (obj instanceof Test) {
+      return testType; // eslint-disable-line no-use-before-define
+    }
 
     return null;
   },
 );
+
+const testType = new GraphQLObjectType({
+  name: 'Test',
+  fields: () => ({
+    id: globalIdField('Test'),
+    value: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The test value',
+    }
+  }),
+  interfaces: [
+    nodeInterface,
+  ],
+});
 
 const userType = new GraphQLObjectType({
   name: 'User',
@@ -66,14 +95,22 @@ const {connectionType: userConnection} = connectionDefinitions({
 });
 
 const queryType = new GraphQLObjectType({
-  name: 'RootQuery',
+  name: 'Query',
   fields: () => ({
     node: nodeField,
-    users: {
-      type: userConnection,
-      args: connectionArgs,
-      resolve: (_, args) => connectionFromArray(getUsers(), args),
+    testField: {
+      type: GraphQLString,
+      description: 'A test field',
+      resolve: () => 'Hello, world!',
     },
+    users: {
+      type: new GraphQLList(userType),
+      resolve: (_, args) => getUsers(),
+    },
+    test: {
+      type: testType,
+      resolve: () => getTest(),
+    }
   }),
 });
 
