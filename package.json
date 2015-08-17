@@ -65,6 +65,7 @@
     "eslint-friendly-formatter": "^1.2.0",
     "eslint-plugin-react": "^3.2.2",
     "extract-text-webpack-plugin": "^0.8.2",
+    "faker": "^3.0.1",
     "file-loader": "^0.8.4",
     "gaze": "^0.5.1",
     "json-loader": "^0.5.2",

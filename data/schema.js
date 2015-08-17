@@ -2,37 +2,35 @@ import {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLNonNull,
-  GraphQLList,
   GraphQLString,
 } from 'graphql';
 
 import {
+  connectionArgs,
+  connectionDefinitions,
+  connectionFromArray,
   nodeDefinitions,
   fromGlobalId,
   globalIdField,
 } from 'graphql-relay';
 
-class Viewer extends Object {}
-class User extends Object {}
-const getViewer = () => new Viewer();
-const getUser = () => new User();
+import {
+  User,
+  getUsers,
+} from './mock-database';
 
 const {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
-    const {type} = fromGlobalId(globalId);
+    const {id, type} = fromGlobalId(globalId);
     switch (type) {
-    case 'Viewer':
-      return getViewer();
     case 'User':
-      return getUser();
+      return getUser(id);
     default:
       return null;
     }
   },
   (obj) => {
-    if (obj instanceof Viewer) {
-      return viewerType; // eslint-disable-line no-use-before-define
-    } else if (obj instanceof User) {
+    if (obj instanceof User) {
       return userType; // eslint-disable-line no-use-before-define
     }
 
@@ -53,19 +51,8 @@ const userType = new GraphQLObjectType({
     lastName: {
       type: GraphQLString,
     },
-  }),
-  interfaces: [
-    nodeInterface,
-  ],
-});
-
-
-const viewerType = new GraphQLObjectType({
-  name: 'Viewer',
-  fields: () => ({
-    id: globalIdField('Viewer'),
-    users: {
-      type: new GraphQLList(userType),
+    avatar: {
+      type: GraphQLString,
     },
   }),
   interfaces: [
@@ -73,13 +60,19 @@ const viewerType = new GraphQLObjectType({
   ],
 });
 
+const {connectionType: userConnection} = connectionDefinitions({
+  name: 'User',
+  nodeType: userType,
+});
+
 const queryType = new GraphQLObjectType({
   name: 'RootQuery',
   fields: () => ({
     node: nodeField,
-    viewer: {
-      type: new GraphQLNonNull(viewerType),
-      resolve: () => getViewer(),
+    users: {
+      type: userConnection,
+      args: connectionArgs,
+      resolve: (_, args) => connectionFromArray(getUsers(), args),
     },
   }),
 });

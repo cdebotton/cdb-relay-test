@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
+import Relay from 'react-relay';
 import StyleSheet from './Home.styl';
 import * as SampleActions from '../../actions/SampleActions';
 import title from '../../decorators/title';
@@ -46,9 +47,10 @@ class Home extends Component {
   isIncreasing: state.sample.isIncreasing,
 }))
 
-export default class HomeConnector extends Component {
+class HomeConnector extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
+    users: PropTypes.any.isRequired,
   }
 
   render() {
@@ -63,14 +65,15 @@ export default class HomeConnector extends Component {
   }
 }
 
-// class HomeContainer extends Relay.createContainer(HomeConnector, {
-//   fragments: {
-//     viewer: () => Relay.QL`
-//       fragment on Viewer {
-//         users {
-//           firstName,
-//         },
-//       }
-//     `,
-//   },
-// });
+export default Relay.createContainer(HomeConnector, {
+  fragments: {
+    users: () => Relay.QL`
+      fragment on User @relay(plural: true) {
+        id,
+        email,
+        firstName,
+        lastName,
+      }
+    `,
+  },
+});
