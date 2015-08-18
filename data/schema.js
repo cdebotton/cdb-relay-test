@@ -75,6 +75,19 @@ const {connectionType: UserConnection} = connectionDefinitions({
   nodeType: userType,
 });
 
+const reduceFieldsFromAST = (fieldASTs) => {
+  const selections = fieldASTs.selectionSet;
+  return fieldASTs.reduce((memo, ast) => {
+    if (ast.selectionSet) {
+      return memo.concat(reduceFieldsFromAST(ast));
+    }
+
+    memo.push(selectionSet.name.value);
+
+    return memo;
+  }, []);
+};
+
 const viewerType = new GraphQLObjectType({
   name: 'Viewer',
   description: 'The current user of the application',
@@ -84,10 +97,16 @@ const viewerType = new GraphQLObjectType({
       type: UserConnection,
       description: 'All users in the application',
       args: connectionArgs,
-      resolve: (root, args) => connectionFromPromisedArray(
-        User.findAll({ limit: args.first }),
-        args
-      ),
+      resolve: (root, args, {fieldASTs}) => {
+        // const fields = reduceFieldsFromAST(fieldASTs);
+        // console.log(fields);
+        return connectionFromPromisedArray(
+          User.findAll({
+            limit: args.first
+          }),
+          args
+        );
+      },
     },
   }),
   interfaces: [

@@ -27,8 +27,6 @@ export default Relay.createContainer(UserBadge, {
       fragment on User {
         id,
         email,
-        lastLogin,
-        createdAt,
       }
     `,
   },
