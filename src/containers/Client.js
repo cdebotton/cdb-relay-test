@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import Relay from 'react-relay';
 import {Router} from 'react-router';
+import RootRoute from '../routes/RootRoute';
 import routes from '../routes';
 
 export default class Client extends Component {
@@ -13,20 +14,10 @@ export default class Client extends Component {
       <Router
         createElement={(RouterComponent, routerProps) => {
           if (Relay.isContainer(RouterComponent)) {
-            const {Route} = routerProps.route;
-
-            if (!Route) {
-              throw new Error(
-                `You must assign a Relay {Route} on route: ` +
-                `${RouterComponent.displayName} at path ` +
-                `${routerProps.route.path}.`
-              );
-            }
-
             return (
               <Relay.RootContainer
                 Component={RouterComponent}
-                route={new Route()} />
+                route={new RootRoute()} />
             );
           }
 

@@ -11,5 +11,5 @@ export default class extends Route {
       }
     `,
   }
-  static routeName = 'UsersRoute'
+  static routeName = 'RootRoute'
 }
