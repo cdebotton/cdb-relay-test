@@ -1,87 +1,68 @@
 import {
-  GraphQLSchema,
   GraphQLObjectType,
-  GraphQLNonNull,
+  GraphQLSchema,
   GraphQLString,
-  GraphQLList,
 } from 'graphql';
 
 import {
   connectionArgs,
   connectionDefinitions,
-  connectionFromArray,
-  nodeDefinitions,
+  connectionFromPromisedArray,
   fromGlobalId,
   globalIdField,
+  nodeDefinitions,
 } from 'graphql-relay';
 
 import {
+  Viewer,
+  getViewer,
+} from './viewer';
+
+import {
   User,
-  getUsers,
-} from './mock-database';
+} from './models';
 
-class Test extends Object {}
-const getTest = () => {
-  const test = new Test();
-  test.id = 1;
-  test.value = 'Hello, world!';
-
-  return test;
-}
-
-const {nodeInterface, nodeField} = nodeDefinitions(
+const {nodeField, nodeInterface} = nodeDefinitions(
   (globalId) => {
     const {id, type} = fromGlobalId(globalId);
     switch (type) {
+    case 'Viewer':
+      return getViewer();
     case 'User':
-      return getUser(id);
-    case 'Test':
-      return getTest(id);
+      return User.find(id);
     default:
       return null;
     }
   },
   (obj) => {
-    if (obj instanceof User) {
+    if (obj instanceof Viewer) {
+      return viewerType; // eslint-disable-line no-use-before-define
+    } else if (obj instanceof User) {
       return userType; // eslint-disable-line no-use-before-define
     }
-    if (obj instanceof Test) {
-      return testType; // eslint-disable-line no-use-before-define
-    }
-
     return null;
-  },
+  }
 );
-
-const testType = new GraphQLObjectType({
-  name: 'Test',
-  fields: () => ({
-    id: globalIdField('Test'),
-    value: {
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'The test value',
-    }
-  }),
-  interfaces: [
-    nodeInterface,
-  ],
-});
 
 const userType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
     id: globalIdField('User'),
     email: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    firstName: {
       type: GraphQLString,
+      dscription: 'The user\'s email address',
     },
-    lastName: {
+    lastLogin: {
       type: GraphQLString,
+      dscription: 'The user\'s last login date',
     },
-    avatar: {
+    createdAt: {
       type: GraphQLString,
+      dscription: 'The user\'s account creation date',
+    },
+    updatedAt: {
+      type: GraphQLString,
+      dscription: 'The the last time that user\'s account was updated',
     },
   }),
   interfaces: [
@@ -89,28 +70,41 @@ const userType = new GraphQLObjectType({
   ],
 });
 
-const {connectionType: userConnection} = connectionDefinitions({
+const {connectionType: UserConnection} = connectionDefinitions({
   name: 'User',
   nodeType: userType,
 });
 
+const viewerType = new GraphQLObjectType({
+  name: 'Viewer',
+  description: 'The current user of the application',
+  fields: () => ({
+    id: globalIdField('Viewer'),
+    users: {
+      type: UserConnection,
+      description: 'All users in the application',
+      args: connectionArgs,
+      resolve: (root, args) => connectionFromPromisedArray(
+        User.findAll({ limit: args.first }),
+        args
+      ),
+    },
+  }),
+  interfaces: [
+    nodeInterface,
+  ],
+});
+
 const queryType = new GraphQLObjectType({
   name: 'Query',
+  description: 'Root Query',
   fields: () => ({
+    viewer: {
+      type: viewerType,
+      description: 'The current user of the application',
+      resolve: () => getViewer(),
+    },
     node: nodeField,
-    testField: {
-      type: GraphQLString,
-      description: 'A test field',
-      resolve: () => 'Hello, world!',
-    },
-    users: {
-      type: new GraphQLList(userType),
-      resolve: (_, args) => getUsers(),
-    },
-    test: {
-      type: testType,
-      resolve: () => getTest(),
-    }
   }),
 });
 

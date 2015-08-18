@@ -1,8 +1,9 @@
 import React, {Component, PropTypes} from 'react';
+import Relay from 'react-relay';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import Relay from 'react-relay';
 import StyleSheet from './Home.styl';
+import UserBadge from '../UserBadge';
 import * as SampleActions from '../../actions/SampleActions';
 import title from '../../decorators/title';
 
@@ -14,9 +15,26 @@ class Home extends Component {
     increase: PropTypes.func.isRequired,
     decrease: PropTypes.func.isRequired,
     increaseAsync: PropTypes.func.isRequired,
+    users: PropTypes.array.isRequired,
+  }
+
+  renderUsers() {
+    if (!this.props.users.length) {
+      return false;
+    }
+
+    return this.props.users.map((user, key) => {
+      return (
+        <UserBadge
+          key={key}
+          user={user} />
+      );
+    });
   }
 
   render() {
+    const users = this.renderUsers();
+
     return (
       <div className={StyleSheet.container}>
         <h2><i className="fa fa-home" /> Home</h2>
@@ -37,6 +55,9 @@ class Home extends Component {
           disabled={this.props.isIncreasing}
           type="button"
           children="+ Async" />
+
+        <h3>Users</h3>
+        {users}
       </div>
     );
   }
@@ -46,35 +67,38 @@ class Home extends Component {
   count: state.sample.count,
   isIncreasing: state.sample.isIncreasing,
 }))
-
 class HomeConnector extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
-    users: PropTypes.any.isRequired,
+    viewer: PropTypes.object.isRequired,
   }
 
   render() {
     const {dispatch, ...props} = this.props;
     const sampleActions = bindActionCreators(SampleActions, dispatch);
-
-    console.log(this.props.test);
+    const users = this.props.viewer.users.edges.map((edge) => edge.node);
 
     return (
       <Home
+        users={users}
         {...sampleActions}
-        {...props} />
+        {...props}
+        {...this.props} />
     );
   }
 }
 
 export default Relay.createContainer(HomeConnector, {
   fragments: {
-    users: () => Relay.QL`
-      fragment on User @relay(plural: true) {
-        id,
-        email,
-        firstName,
-        lastName,
+    viewer: () => Relay.QL`
+      fragment on Viewer {
+        users(first: 100) {
+          edges {
+            node {
+              ${UserBadge.getFragment('user')}
+            },
+          },
+        },
       }
     `,
   },

@@ -2,7 +2,6 @@ import React, {Component, PropTypes} from 'react';
 import Relay from 'react-relay';
 import {Router} from 'react-router';
 import routes from '../routes';
-import {matchRoute} from '../utils/relay-routes';
 
 export default class Client extends Component {
   static propTypes = {
@@ -14,16 +13,21 @@ export default class Client extends Component {
       <Router
         createElement={(RouterComponent, routerProps) => {
           if (Relay.isContainer(RouterComponent)) {
-            const {pathname} = routerProps.location;
-            const Route = matchRoute(pathname);
+            const {Route} = routerProps.route;
 
-            if (Route) {
-              return (
-                <Relay.RootContainer
-                  Component={RouterComponent}
-                  route={new Route()} />
+            if (!Route) {
+              throw new Error(
+                `You must assign a Relay {Route} on route: ` +
+                `${RouterComponent.displayName} at path ` +
+                `${routerProps.route.path}.`
               );
             }
+
+            return (
+              <Relay.RootContainer
+                Component={RouterComponent}
+                route={new Route()} />
+            );
           }
 
           return (
