@@ -55,9 +55,10 @@ class Home extends Component {
           disabled={this.props.isIncreasing}
           type="button"
           children="+ Async" />
-
-        <h3>Users</h3>
-        {users}
+        <div className={StyleSheet.users}>
+          <h3>Users</h3>
+          {users}
+        </div>
       </div>
     );
   }

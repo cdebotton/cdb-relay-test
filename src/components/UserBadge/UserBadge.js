@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import Relay from 'react-relay';
+import StyleSheet from './UserBadge.styl';
 
 class UserBadge extends Component {
   static propTypes = {
@@ -11,7 +12,7 @@ class UserBadge extends Component {
 
   render() {
     return (
-      <div>
+      <div className={StyleSheet.container}>
         <a href={`mailto:${this.props.user.email}`}>
           {this.props.user.email}
         </a>
