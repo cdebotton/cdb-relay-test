@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLInt,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -123,6 +124,31 @@ const queryType = new GraphQLObjectType({
   }),
 });
 
+const destroyUserMutation = mutationWithClientMutationId({
+  name: 'DestroyUser',
+  inputFields: {
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+    },
+  },
+  outputFields: {
+    destroyedUserId: {
+      type: GraphQLID,
+      resolve: ({id}) => id,
+    },
+    viewer: {
+      type: viewerType,
+      resolve: () => getViewer(),
+    },
+  },
+  mutateAndGetPayload: async ({id}) => {
+    const {id: userID} = fromGlobalId(id);
+    const user = await User.findById(userID);
+    await user.destroy();
+    return {id};
+  },
+});
+
 const createUserMutation = mutationWithClientMutationId({
   name: 'CreateUser',
   inputFields: {
@@ -135,10 +161,9 @@ const createUserMutation = mutationWithClientMutationId({
       type: UserEdge,
       resolve: async ({localUserId}) => {
         const user = await User.findById(localUserId);
-        const allUsers = await User.findAll();
-        console.log(cursorForObjectInConnection(allUsers, user));
+
         return {
-          cursor: cursorForObjectInConnection(allUsers, user),
+          cursor: '',
           node: user,
         };
       },
@@ -159,6 +184,7 @@ const mutationType = new GraphQLObjectType({
   description: 'Root Mutation',
   fields: () => ({
     createUser: createUserMutation,
+    destroyUser: destroyUserMutation,
   }),
 });
 

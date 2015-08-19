@@ -17,6 +17,9 @@ class Home extends Component {
     decrease: PropTypes.func.isRequired,
     increaseAsync: PropTypes.func.isRequired,
     users: PropTypes.array.isRequired,
+    viewer: PropTypes.shape({
+      id: PropTypes.any,
+    }).isRequired,
   }
 
   renderUsers() {
@@ -28,7 +31,8 @@ class Home extends Component {
       return (
         <UserBadge
           key={key}
-          user={user} />
+          user={user}
+          viewer={this.props.viewer} />
       );
     });
   }
@@ -112,10 +116,11 @@ export default Relay.createContainer(HomeConnector, {
         users(first: 100) {
           edges {
             node {
-              ${UserBadge.getFragment('user')}
+              ${UserBadge.getFragment('user')},
             },
           },
         },
+        ${UserBadge.getFragment('viewer')},
         ${CreateUserMutation.getFragment('viewer')},
       }
     `,
