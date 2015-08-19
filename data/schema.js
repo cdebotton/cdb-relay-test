@@ -1,4 +1,6 @@
 import {
+  GraphQLInt,
+  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
@@ -8,8 +10,10 @@ import {
   connectionArgs,
   connectionDefinitions,
   connectionFromPromisedArray,
+  cursorForObjectInConnection,
   fromGlobalId,
   globalIdField,
+  mutationWithClientMutationId,
   nodeDefinitions,
 } from 'graphql-relay';
 
@@ -49,7 +53,7 @@ const userType = new GraphQLObjectType({
   fields: () => ({
     id: globalIdField('User'),
     email: {
-      type: GraphQLString,
+      type: new GraphQLNonNull(GraphQLString),
       dscription: 'The user\'s email address',
     },
     lastLogin: {
@@ -70,23 +74,19 @@ const userType = new GraphQLObjectType({
   ],
 });
 
-const {connectionType: UserConnection} = connectionDefinitions({
+const {
+  connectionType: UserConnection,
+  edgeType: UserEdge,
+} = connectionDefinitions({
   name: 'User',
   nodeType: userType,
+  connectionFields: () => ({
+    totalCount: {
+      type: GraphQLInt,
+      resolve: (conn) => conn.edges.length,
+    },
+  }),
 });
-
-const reduceFieldsFromAST = (fieldASTs) => {
-  const selections = fieldASTs.selectionSet;
-  return fieldASTs.reduce((memo, ast) => {
-    if (ast.selectionSet) {
-      return memo.concat(reduceFieldsFromAST(ast));
-    }
-
-    memo.push(selectionSet.name.value);
-
-    return memo;
-  }, []);
-};
 
 const viewerType = new GraphQLObjectType({
   name: 'Viewer',
@@ -97,16 +97,12 @@ const viewerType = new GraphQLObjectType({
       type: UserConnection,
       description: 'All users in the application',
       args: connectionArgs,
-      resolve: (root, args, {fieldASTs}) => {
-        // const fields = reduceFieldsFromAST(fieldASTs);
-        // console.log(fields);
-        return connectionFromPromisedArray(
-          User.findAll({
-            limit: args.first
-          }),
-          args
-        );
-      },
+      resolve: (root, args) => connectionFromPromisedArray(
+        User.findAll({
+          limit: args.first,
+        }),
+        args
+      ),
     },
   }),
   interfaces: [
@@ -127,6 +123,46 @@ const queryType = new GraphQLObjectType({
   }),
 });
 
+const createUserMutation = mutationWithClientMutationId({
+  name: 'CreateUser',
+  inputFields: {
+    email: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+  },
+  outputFields: {
+    userEdge: {
+      type: UserEdge,
+      resolve: async ({localUserId}) => {
+        const user = await User.findById(localUserId);
+        const allUsers = await User.findAll();
+        console.log(cursorForObjectInConnection(allUsers, user));
+        return {
+          cursor: cursorForObjectInConnection(allUsers, user),
+          node: user,
+        };
+      },
+    },
+    viewer: {
+      type: viewerType,
+      resolve: () => getViewer(),
+    },
+  },
+  mutateAndGetPayload: async ({email}) => {
+    const user = await User.create({email});
+    return {localUserId: user.id};
+  },
+});
+
+const mutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  description: 'Root Mutation',
+  fields: () => ({
+    createUser: createUserMutation,
+  }),
+});
+
 export const Schema = new GraphQLSchema({
   query: queryType,
+  mutation: mutationType,
 });

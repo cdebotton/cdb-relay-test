@@ -6,6 +6,7 @@ import StyleSheet from './Home.styl';
 import UserBadge from '../UserBadge';
 import * as SampleActions from '../../actions/SampleActions';
 import title from '../../decorators/title';
+import CreateUserMutation from '../../mutations/CreateUserMutation';
 
 @title(() => `Home | Christian de Botton`)
 class Home extends Component {
@@ -57,9 +58,24 @@ class Home extends Component {
           children="+ Async" />
         <div className={StyleSheet.users}>
           <h3>Users</h3>
+          <form onSubmit={::this.handleCreateUser}>
+            <input
+              ref={(c) => this._newEmail = c}
+              type="email" />
+            <button type="submit">Create</button>
+          </form>
           {users}
         </div>
       </div>
+    );
+  }
+
+  handleCreateUser(event) {
+    event.preventDefault();
+    const {value: email} = this._newEmail;
+
+    Relay.Store.update(
+      new CreateUserMutation({email, viewer: this.props.viewer})
     );
   }
 }
@@ -100,6 +116,7 @@ export default Relay.createContainer(HomeConnector, {
             },
           },
         },
+        ${CreateUserMutation.getFragment('viewer')},
       }
     `,
   },
